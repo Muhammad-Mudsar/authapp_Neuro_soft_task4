@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Login · Nexus
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<!-- Toast container -->
+<!-- <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div> -->
+
+<div class="toast-container" id="toastContainer" role="status" aria-live="polite">
+  {% if messages %}
+  {% for message in messages %}
+  <div class="toast" data-delay="6000">
+    <div class="toast-icon {{ message.tags }}">
+      <i
+        class="{% if message.tags == 'success' %}fas fa-check-circle{% elif message.tags == 'error' %}fas fa-exclamation-circle{% elif message.tags == 'warning' %}fas fa-exclamation-triangle{% else %}fas fa-info-circle{% endif %}"></i>
+    </div>
+    <div class="toast-body">
+      <div class="toast-title">{{ message.tags|capfirst }}</div>
+      <div class="toast-msg">{{ message }}</div>
+    </div>
+    <button class="toast-close" aria-label="Dismiss notification">&times;</button>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<!-- Inline script to activate toasts -->
+<script>
+  (function () {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toasts = container.querySelectorAll('.toast:not(.show)');
+    toasts.forEach((toast, index) => {
+      setTimeout(() => {
+        toast.classList.add('show');
+        // Attach close button
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function () {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+          });
+        }
+        // Auto-dismiss
+        const delay = parseInt(toast.dataset.delay) || 6000;
+        if (delay > 0) {
+          setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+          }, delay);
+        }
+      }, 200 + index * 150);
+    });
+  })();
+</script>
+<!-- message-data! -->
+
+<!-- Login grid -->
+<div class="auth-grid" role="main" aria-label="Log in">
+  <div class="auth-brand">
+    <div class="brand-big">
+      Nexus<span>.</span>
+    </div>
+    <p class="brand-tagline">Welcome back. Sign in to continue building the future.</p>
+    <div class="brand-features">
+      <div class="feat">
+        <i class="fas fa-rocket"></i> Launch products faster
+      </div>
+      <div class="feat">
+        <i class="fas fa-lock"></i> Zero-trust security
+      </div>
+      <div class="feat">
+        <i class="fas fa-chart-line"></i> Real-time analytics
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="auth-form-wrap">
+    <div class="auth-form">
+      <div class="glass-card" style="padding:2rem 1.8rem;">
+        <!-- Default Login -->
+        <div id="loginDefault">
+          <h2 style="font-weight:700;font-size:1.5rem;margin-bottom:0.15rem;">Welcome back</h2>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to your account.</p>
+
+          <form id="loginForm" method="POST" novalidate>
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="input-label" for="loginEmail">User Name</label>
+              <input type="text" id="loginEmail" name="username" class="input-premium" placeholder="Mr alex" required
+                autocomplete="username" />
+              <div class="validation-msg" style="font-size:0.75rem;color:var(--error);margin-top:0.2rem;display:none;">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="input-label" for="loginPassword">Password</label>
+              <div class="input-group">
+                <input type="password" id="loginPassword" name="password" required class="input-premium"
+                  placeholder="••••••••" required autocomplete="current-password" />
+                <button type="button" class="toggle-vis" aria-label="Toggle password visibility" tabindex="-1"><i
+                    class="fas fa-eye"></i></button>
+              </div>
+            </div>
+
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.4rem;">
+              <label
+                style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;"><input
+                  type="checkbox" id="loginRemember"
+                  style="accent-color:var(--accent-blue);width:15px;height:15px;cursor:pointer;" />Remember me</label>
+              <a href="#" class="link-premium" id="forgotLink" style="font-size:0.85rem;">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-premium w-full" id="loginBtn">
+              <span class="btn-text">Sign in</span>
+              <span class="spinner"></span>
+            </button>
+
+            <div style="margin-top:1rem;text-align:center;font-size:0.85rem;color:var(--text-secondary);">
+              Don't have an account? <a href="{% url 'accounts:signup' %}" class="link-premium">Create one</a>
+            </div>
+          </form>
+
+          <div class="divider-text" style="margin:1.5rem 0 1rem;">or continue with</div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="social-btn" aria-label="Sign in with Google">
+              <i class="fab fa-google"></i>
+              Google
+            </button>
+            <button class="social-btn" aria-label="Sign in with Apple">
+              <i class="fab fa-apple"></i>
+              Apple
+            </button>
+            <button class="social-btn" aria-label="Sign in with GitHub">
+              <i class="fab fa-github"></i>
+              GitHub
+            </button>
+          </div>
+        </div>
+
+        <!-- 2FA State -->
+        <div id="login2fa" style="display:none;">
+          <h2 style="font-weight:700;font-size:1.5rem;margin-bottom:0.15rem;">Two-factor authentication</h2>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:0.25rem;">Enter the 6-digit code from
+            your authenticator app.</p>
+          <div class="otp-group" id="otpGroup">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+          </div>
+          <div
+            style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+            <button type="button" class="link-premium" id="otpBack"
+              style="font-size:0.85rem;background:none;border:none;cursor:pointer;">← Back to login</button>
+            <button type="button" class="link-premium" id="otpResend"
+              style="font-size:0.85rem;background:none;border:none;cursor:pointer;">Resend code</button>
+          </div>
+          <button type="button" class="btn-premium w-full" id="otpVerifyBtn">
+            <span class="btn-text">Verify</span>
+            <span class="spinner"></span>
+          </button>
+        </div>
+
+        <!-- Forgot Password State -->
+        <div id="loginForgot" style="display:none;">
+          <h2 style="font-weight:700;font-size:1.5rem;margin-bottom:0.15rem;">Reset password</h2>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.25rem;">Enter your email and we'll send
+            you a link to reset your password.</p>
+          <form id="forgotForm" novalidate>
+            <div class="mb-4">
+              <label class="input-label" for="forgotEmail">Email</label>
+              <input type="email" id="forgotEmail" class="input-premium" placeholder="alex@company.com" required
+                autocomplete="email" />
+            </div>
+            <button type="submit" class="btn-premium w-full" id="forgotBtn">
+              <span class="btn-text">Send reset link</span>
+              <span class="spinner"></span>
+            </button>
+          </form>
+          <div style="margin-top:1rem;text-align:center;font-size:0.85rem;color:var(--text-secondary);">
+            <a href="#" class="link-premium" id="forgotBackLink">← Back to login</a>
+          </div>
+        </div>
+
+        <!-- Forgot Success -->
+        <div id="loginForgotSuccess" style="display:none;text-align:center;padding:0.5rem 0;">
+          <i class="fas fa-check-circle" style="font-size:2.5rem;color:var(--success);margin-bottom:0.75rem;"></i>
+          <h3 style="font-weight:600;font-size:1.2rem;">Check your inbox</h3>
+          <p style="color:var(--text-secondary);font-size:0.9rem;max-width:320px;margin:0.3rem auto 1rem;">We've sent a
+            password reset link to your email address.</p>
+          <a href="#" class="link-premium" id="forgotSuccessBack">← Back to login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
+
+{% block LiveSCRIPT %}
+<script>
+
+  // Ensure toasts are initialized after page loads
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof initServerToasts === 'function') {
+      initServerToasts();
+    }
+  });
+
+  (function () {
+    const loginDefault = document.getElementById('loginDefault')
+    //  const login2fa = document.getElementById('login2fa')
+    const loginForgot = document.getElementById('loginForgot')
+    const loginForgotSuccess = document.getElementById('loginForgotSuccess')
+
+    const loginForm = document.getElementById('loginForm')
+    const loginBtn = document.getElementById('loginBtn')
+    const otpInputs = document.querySelectorAll('.otp-input')
+    const otpVerifyBtn = document.getElementById('otpVerifyBtn')
+    const otpBack = document.getElementById('otpBack')
+
+    // Toggle visibility of 2FA
+    // loginForm.addEventListener('submit', function (e) {
+    //   e.preventDefault()
+    //   const email = document.getElementById('loginEmail').value.trim()
+    //   const pw = document.getElementById('loginPassword').value
+    //   if (!email || !pw) {
+    //     showToast('error', 'Missing credentials', 'Please enter your email and password.')
+    //     return
+    //   }
+    //   loginBtn.classList.add('loading')
+    //   loginBtn.disabled = true
+    //   setTimeout(() => {
+    //     loginBtn.classList.remove('loading')
+    //     loginBtn.disabled = false
+    //     loginDefault.style.display = 'none'
+    //     login2fa.style.display = 'block'
+    //     document.querySelector('.otp-input')?.focus()
+    //     showToast('info', '2FA required', 'Enter the verification code from your authenticator app.')
+    //   }, 1000)
+    // })
+
+    // OTP navigation
+    // otpInputs.forEach((input, idx) => {
+    //   input.addEventListener('input', function () {
+    //     this.value = this.value.replace(/\D/g, '')
+    //     if (this.value && idx < otpInputs.length - 1) otpInputs[idx + 1].focus()
+    //     this.classList.toggle('filled', !!this.value)
+    //   })
+    //   input.addEventListener('keydown', function (e) {
+    //     if (e.key === 'Backspace' && !this.value && idx > 0) {
+    //       otpInputs[idx - 1].focus()
+    //       otpInputs[idx - 1].value = ''
+    //       otpInputs[idx - 1].classList.remove('filled')
+    //     }
+    //     if (e.key === 'Enter') {
+    //       const allFilled = Array.from(otpInputs).every((inp) => inp.value.length === 1)
+    //       if (allFilled) otpVerifyBtn.click()
+    //     }
+    //   })
+    //   // Paste support
+    //   input.addEventListener('paste', function (e) {
+    //     e.preventDefault()
+    //     const paste = (e.clipboardData || window.clipboardData).getData('text')
+    //     const digits = paste.replace(/\D/g, '').slice(0, otpInputs.length)
+    //     digits.split('').forEach((d, i) => {
+    //       if (otpInputs[i]) {
+    //         otpInputs[i].value = d
+    //         otpInputs[i].classList.add('filled')
+    //       }
+    //     })
+    //     const nextIdx = Math.min(digits.length, otpInputs.length - 1)
+    //     if (digits.length < otpInputs.length) otpInputs[digits.length]?.focus()
+    //     else otpInputs[otpInputs.length - 1]?.focus()
+    //   })
+    // })
+
+    // otpVerifyBtn.addEventListener('click', function () {
+    //   const code = Array.from(otpInputs)
+    //     .map((inp) => inp.value)
+    //     .join('')
+    //   if (code.length !== 6) {
+    //     showToast('error', 'Invalid code', 'Please enter all 6 digits.')
+    //     return
+    //   }
+    //   this.classList.add('loading')
+    //   this.disabled = true
+    //   setTimeout(() => {
+    //     this.classList.remove('loading')
+    //     this.disabled = false
+    //     showToast('success', 'Welcome back!', 'You have been successfully authenticated.')
+    //     window.location.href = 'dashboard.html'
+    //   }, 1000)
+    // })
+
+    // otpBack.addEventListener('click', function () {
+    //   login2fa.style.display = 'none'
+    //   loginDefault.style.display = 'block'
+    //   document.getElementById('loginPassword').value = ''
+    //   otpInputs.forEach((inp) => {
+    //     inp.value = ''
+    //     inp.classList.remove('filled')
+    //   })
+    // })
+
+
+    //// Forgot password
+    // document.getElementById('forgotLink').addEventListener('click', function (e) {
+    //   e.preventDefault()
+    //   loginDefault.style.display = 'none'
+    //   loginForgot.style.display = 'block'
+    //   loginForgotSuccess.style.display = 'none'
+    //   document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || ''
+    //   document.getElementById('forgotEmail').focus()
+    // })
+
+    document.getElementById('forgotBackLink').addEventListener('click', function (e) {
+      e.preventDefault()
+      loginForgot.style.display = 'none'
+      loginForgotSuccess.style.display = 'none'
+      loginDefault.style.display = 'block'
+    })
+
+    document.getElementById('forgotSuccessBack').addEventListener('click', function (e) {
+      e.preventDefault()
+      loginForgotSuccess.style.display = 'none'
+      loginDefault.style.display = 'block'
+    })
+
+    document.getElementById('forgotForm').addEventListener('submit', function (e) {
+      e.preventDefault()
+      const email = document.getElementById('forgotEmail').value.trim()
+      if (!email) {
+        showToast('error', 'Email required', 'Please enter your email address.')
+        return
+      }
+      const btn = document.getElementById('forgotBtn')
+      btn.classList.add('loading')
+      btn.disabled = true
+      setTimeout(() => {
+        btn.classList.remove('loading')
+        btn.disabled = false
+        loginForgot.style.display = 'none'
+        loginForgotSuccess.style.display = 'block'
+        showToast('success', 'Reset link sent', `We've sent a password reset link to ${email}.`)
+      }, 1200)
+    })
+
+    // Resend code (placeholder)
+    document.getElementById('otpResend').addEventListener('click', function () {
+      showToast('info', 'Code resent', 'A new verification code has been sent.')
+    })
+  })()
+</script>
+{% endblock %}

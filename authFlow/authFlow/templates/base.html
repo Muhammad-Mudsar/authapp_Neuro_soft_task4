@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <!-- FontAwesome CSS -->
+    {% load static %}
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/style2.css' %}" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/indexpage.css' %}" />
+    {% block liveCSS %}
+
+    {% endblock %}
+
+    <title>
+      Nexus |{% block title %}
+
+      {% endblock %}
+    </title>
+  </head>
+
+  <body>
+    <!-- Ambient background -->
+    <div class="bg-ambient" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="grid-overlay"></div>
+      <div></div>
+    </div>
+    {% block content %}
+
+    {% endblock %}
+  </body>
+  <script src="{% static 'js/common.js' %}"></script>
+  {% comment %} <script src="{% static 'js/scripts.js' %}"></script> {% endcomment %}
+
+  <!-- <script src="{% static 'js/scripts.js' %}"></script> -->
+  <!-- Use Minified Plugins Version For Fast Page Load -->
+
+  {% comment %} <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script> {% endcomment %}
+
+  {% block LiveSCRIPT %}
+
+  {% endblock %}
+</html>

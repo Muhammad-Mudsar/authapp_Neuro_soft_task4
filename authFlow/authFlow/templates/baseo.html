@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  {% load static %}
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ template_data.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    {% block liveCss %}
+      <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    {% endblock %}
+  </head>
+
+  <body>
+    <!-- Header -->
+    <!-- nav -->
+    <nav class="p-3 navbar navbar-dark bg-color navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home.index' %}"><img src="{% static 'img/logo.svg' %}" alt="logo" height="40" /></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav ms-auto navbar-ml">
+            <a class="nav-link active" href="{% url 'home.index' %}">Home</a>
+
+            <a class="nav-link" href="#">About</a>
+
+            {% if user.is_authenticated %}
+              <a class="nav-link" href="{% url 'home.dashboard' %}">Dashboard</a>
+              <a class="nav-link" href="{% url 'accounts.logout' %}">LogOut ({{ user.username }})</a>
+            {% else %}
+              <a class="nav-link" href="{% url 'accounts.login' %}">Login</a>
+              <a class="nav-link" href="{% url 'accounts.signup' %}">Sign Up</a>
+              <div class="vr bg-white mx-2 d-none d-lg-block"></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- nav -->
+    <!-- dynamccntReplc -->
+    <div>
+      {% block content %}
+
+      {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <section class="p-3 bg-color d-none d-md-block">
+      <div class="container">
+        <div class="row mt-3 text-white">
+          <div class="col-md-6 col-lg-6 col-xl-6 mx-auto mb-4">
+            <b>Nexus Stack</b>
+            <hr />
+            <p class="pe-2">Welcome to Nexus Stack, your premier online destination for Tech Solutions like no other! SERVE the worlds top quality products from the comfort of your own home with our user- friendly and immersive online Grocery store.</p>
+          </div>
+          <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
+            <b>LINKS</b>
+            <hr />
+            <p>
+              <a class="nav-link" href="#">About</a>
+            </p>
+          </div>
+          <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
+            <b>CONTACT</b>
+            <hr />
+            <p>
+              <i class="fas fa-home me-2"></i> 150-2345, Islamabad Pakistan
+            </p>
+            <p>
+              <i class="fas fa-envelope me-2"></i>infogroceryo@store.com
+            </p>
+            <p>
+              <i class="fas fa-phone me-2"></i>0333-33333333
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="p-3 ms-footer-bottom bg-color">
+      <div class="container d-flex justify-content-between">
+        <div class="me-5 text-white">
+          <h2 class="wpr-anim-text-visible">Footer</h2>
+        </div>
+        <div class="text-white me-5">
+          <span>All Rights Reserved |© Copyright - 2024</span>
+        </div>
+        <div class="text-white me-5">
+          <span>
+            DESIGNED BY
+            <a class="fs-3" href="https://www.x.com/shahzain" target="_blank">Shahzain</a> &
+            <a class="fs-4" href="https://www.x.com/Shahzain" target="_blank">GREG Mark</a>
+          </span>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+  </body>
+  <script src="{% static 'css/bootstrap.min.css' %}"></script>
+
+  {% block liveScript %}
+
+  {% endblock %}
+</html>
